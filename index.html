@@ -99,7 +99,7 @@ p{margin:0}
 .dom{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:4px 12px;align-items:center}
 .dom .name{display:flex;gap:8px;align-items:center;min-width:0}
 .dom .name b{font-weight:600;font-size:.95rem}
-.dom .w{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.dom .w{font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
 .bar{grid-column:1/-1;height:10px;border-radius:999px;background:var(--rule);overflow:hidden;position:relative}
 .bar i{position:absolute;inset-block:0;inset-inline-start:0;border-radius:999px}
 .stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -255,6 +255,33 @@ textarea.report{width:100%;min-height:180px;border:1px solid var(--rule-strong);
 .credit .cm svg{width:22px;height:22px}
 .credit .ck{font-size:.78rem;color:var(--muted);letter-spacing:.01em}
 .credit .cn{font-family:var(--f-display);font-weight:600;font-size:1.06rem;line-height:1.5}
+
+/* cover, start-here, exam map */
+.cover{display:grid;gap:12px}
+.cover .ck{font-size:.8rem;color:var(--accent);font-weight:600;letter-spacing:.01em}
+.cover h1{font-size:1.5rem}
+.cover p{max-width:62ch;color:var(--muted)}
+.figs{display:flex;flex-wrap:wrap;gap:6px 18px;padding:10px 0;border-block:1px solid var(--rule)}
+.fig{display:flex;align-items:baseline;gap:6px}
+.fig b{font-family:var(--f-mono);font-size:1.25rem;font-weight:600;color:var(--ink)}
+.fig span{font-size:.82rem;color:var(--muted)}
+.topics{display:flex;flex-wrap:wrap;gap:6px}
+.topics span{font-size:.8rem;border:1px solid var(--rule-strong);border-radius:999px;padding:2px 10px;color:var(--ink);background:var(--paper)}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+@media (max-width:560px){.steps{grid-template-columns:1fr}}
+.step{display:grid;grid-template-columns:30px minmax(0,1fr);gap:10px;align-items:center;background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r);padding:10px 12px;text-align:start;width:100%}
+.step .sn{width:30px;height:30px;border-radius:50%;border:2px solid var(--accent);color:var(--accent);display:grid;place-items:center;font-family:var(--f-mono);font-weight:600;font-size:.85rem}
+.step.done .sn{background:var(--good);border-color:var(--good);color:var(--sheet)}
+.step .st{font-weight:600;line-height:1.4}
+.step .ss{font-size:.78rem;color:var(--muted)}
+.map{display:grid;gap:4px}
+.mrow{display:grid;grid-template-columns:minmax(0,1fr) 92px;gap:2px 12px;align-items:center;background:none;border:0;padding:7px 4px;border-radius:8px;text-align:start;width:100%}
+.mrow:hover{background:var(--paper)}
+.mrow .mn{font-size:.9rem;line-height:1.45;min-width:0}
+.mrow .mn .code{margin:0 6px;display:inline-block}
+.mrow .mq{font-size:.8rem;color:var(--muted);text-align:end;font-variant-numeric:tabular-nums}
+.mrow .mb{grid-column:1/-1;height:8px;border-radius:999px;background:var(--rule);overflow:hidden}
+.mrow .mb i{display:block;height:100%;border-radius:999px}
 </style>
 
 <div id="app" dir="rtl" lang="ar">
@@ -2677,6 +2704,35 @@ function domBar(d){
   <div class="w">${AR(p)}٪ إتقان${s.att?` · دقة ${AR(s.acc)}٪`:""}</div>
   <div class="bar"><i style="width:${p}%;background:var(--d${d})"></i></div></div>`;
 }
+const STD_AR = {"6.9.1":"المهارات الأربع والمفردات والقواعد","6.9.2":"تخطيط الدرس وتسلسل الأنشطة","6.9.3":"التقويم والتغذية الراجعة","6.9.4":"طرق التدريس","6.9.5":"الأهداف وتصنيف بلوم","6.9.6":"مصادر التعلم والمواد والتقنية","6.9.7":"المتعلمون: الأنماط والدافعية والثقافة","6.9.8":"نظريات التعلم واكتساب اللغة الثانية","6.9.9":"لغة المتعلم والفروق وتعليم الإنجليزية","6.9.10":"اللغة كنظام وتاريخها وتنوعاتها","6.9.11":"الأصوات والصرف والنحو والدلالة"};
+function coverCard(){
+  const nQ=QS.length, nOf=QS.filter(q=>q.of).length, nV=LESSONS.reduce((a,l)=>a+(l.vid||[]).length,0);
+  const fig=(n,t)=>`<div class="fig"><b>${AR(n)}</b><span>${t}</span></div>`;
+  return `<div class="sheet cover">
+    <div class="ck">الاختبار التخصصي · الرخصة المهنية</div>
+    <h1>اللغة الإنجليزية ٢</h1>
+    <p>لمعلمي المرحلتين المتوسطة والثانوية. دروس على المعايير الأحد عشر، والمصطلحات بالإنجليزي كما ترد في الاختبار مع شرح عربي مختصر، وأسئلة بالإنجليزي مثل الاختبار.</p>
+    <div class="figs">${fig(LESSONS.length,"درساً")}${fig(nQ,"سؤالاً")}${fig(3,"محاكيات كاملة")}${fig(TERMS.length,"مصطلحاً")}${fig(nV,"فيديو شرح")}</div>
+    <p class="small">منها ${AR(nOf)} سؤالاً من دليل الهيئة الرسمي بإجاباتها المعتمدة.</p>
+    <div class="topics">${["تدريس المهارات الأربع والمفردات والقواعد","طرق التدريس","التقويم","الأهداف وتخطيط الدرس","نظريات التعلم واكتساب اللغة الثانية","الأصوات والصرف والنحو والدلالة"].map(t=>`<span>${t}</span>`).join("")}</div>
+  </div>`;
+}
+function startSteps(){
+  const doneL=LESSONS.filter(l=>S.lessons[l.id]&&S.lessons[l.id].done).length;
+  const mk=["mock1","mock2","mock3"].filter(k=>S.tests[k]).length;
+  const d=S.tests.diag;
+  const step=(n,done,attr,t,sub)=>`<button class="step ${done?"done":""}" ${attr}><span class="sn">${done?"✓":AR(n)}</span><span><span class="st">${t}</span><br><span class="ss">${sub}</span></span></button>`;
+  return `<div class="section-title"><h2>ابدأ من هنا</h2><span class="line"></span></div>
+  <div class="steps">${step(1,!!d,'data-act="test" data-id="diag"',"الاختبار التشخيصي",d?`نتيجتك ${AR(d.score)}٪`:"٤٠ سؤالاً · يقيس مستواك قبل البداية")}
+  ${step(2,doneL===LESSONS.length,'data-go="plan"',"الخطة اليومية",`${AR(doneL)} من ${AR(LESSONS.length)} دروس منجزة`)}
+  ${step(3,mk===3,'data-go="practice"',"المحاكيات الثلاث",`${AR(mk)} من ٣ · ٨٨ سؤالاً و٩٠ دقيقة لكل واحد`)}</div>`;
+}
+function examMap(){
+  const keys=Object.keys(STDW); const max=Math.max(...keys.map(k=>STDW[k]));
+  return `<div class="section-title"><h2>خريطة الاختبار</h2><span class="line"></span></div>
+  <div class="sheet stack"><p class="small muted">كم سؤالاً يجيك تقريباً من كل معيار من أصل ٨٨، حسب أوزان دليل الهيئة. اضغط المعيار لتفتح درسه.</p>
+  <div class="map">${keys.map(k=>{const l=LESSONS.find(x=>x.std===k); if(!l) return ""; return `<button class="mrow" data-lesson="${l.id}"><span class="mn">${STD_AR[k]||k}<span class="code">${k}</span></span><span class="mq">≈ ${AR(STD_N[k])} سؤالاً</span><span class="mb"><i style="width:${Math.round(STDW[k]/max*100)}%;background:var(--d${l.d})"></i></span></button>`}).join("")}</div></div>`;
+}
 function viewHome(){
   const plan=buildPlan(), idx=Math.min(plan.length-1,Math.max(0,diffDays(S.start,todayStr()))), today=plan[idx];
   const nt=nextTask();
@@ -2688,7 +2744,8 @@ function viewHome(){
   const mk=k=>S.tests[k]?`${AR(S.tests[k].score)}٪`:"—";
   return `
   <section class="stack" style="padding-top:18px">
-    <div class="credit"><span class="cm" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></span><div><div class="ck">إعداد وتصميم</div><div class="cn">الأستاذ يوسف الشمراني</div></div></div>
+    ${coverCard()}
+    ${startSteps()}
     ${!S.exam?`<div class="sheet"><div class="stack"><h3>متى اختبارك؟</h3><p class="muted small">حدد التاريخ عشان أوزّع الدروس على الأيام المتبقية وأعطيك عدّاً تنازلياً.</p>
       <div class="set-date"><label for="examDate" class="small">تاريخ الاختبار</label><input type="date" id="examDate" dir="ltr" lang="en" min="${todayStr()}"><button class="btn sm" data-act="setExam">احفظ</button></div></div></div>`:""}
     <div class="sheet today">
@@ -2705,10 +2762,12 @@ function viewHome(){
       <div class="stat"><div class="v">${AR(due)}</div><div class="k">أخطاء مستحقة للمراجعة</div></div>
       <div class="stat"><div class="v" style="font-size:1.05rem">${mk("mock1")} · ${mk("mock2")} · ${mk("mock3")}</div><div class="k">المحاكيات ١ · ٢ · ٣</div></div>
     </div>
+    ${examMap()}
     <div class="section-title"><h2>إتقانك حسب المجال</h2><span class="line"></span></div>
     <div class="sheet domains">${DORDER.map(domBar).join("")}
       <p class="small muted">الإتقان: نسبة أسئلة المجال التي آخر إجابة لك عليها صحيحة. النسبة بجانب كل مجال هي وزنه في الاختبار.</p></div>
     <div class="row" style="justify-content:space-between"><div id="syncline" class="sync"></div><button class="btn sm quiet" data-go="settings">الإعدادات والتقرير</button></div>
+    <div class="credit"><span class="cm" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></span><div><div class="ck">إعداد وتصميم</div><div class="cn">الأستاذ يوسف الشمراني</div></div></div>
   </section>`;
 }
 function viewPlan(){
