@@ -282,6 +282,23 @@ textarea.report{width:100%;min-height:180px;border:1px solid var(--rule-strong);
 .mrow .mq{font-size:.8rem;color:var(--muted);text-align:end;font-variant-numeric:tabular-nums}
 .mrow .mb{grid-column:1/-1;height:8px;border-radius:999px;background:var(--rule);overflow:hidden}
 .mrow .mb i{display:block;height:100%;border-radius:999px}
+
+/* theme toggle, simpler home */
+.themebtn{width:38px;height:38px;border-radius:50%;border:1px solid var(--rule-strong);background:var(--sheet);color:var(--ink);display:grid;place-items:center;flex:none;padding:0}
+.themebtn svg{width:18px;height:18px}
+.or{font-size:.88rem;color:var(--muted)}
+.path{font-size:.8rem;color:var(--muted);display:flex;flex-wrap:wrap;gap:2px 8px;align-items:center}
+.path b{color:var(--accent);font-weight:600}
+details.prog{background:var(--sheet);border:1px solid var(--rule);border-radius:var(--r);padding:0 16px}
+details.prog>summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 0;font-family:var(--f-display);font-weight:600;font-size:1.02rem}
+details.prog>summary::-webkit-details-marker{display:none}
+details.prog>summary .hint{font-family:var(--f-ar);font-weight:400;font-size:.8rem;color:var(--muted);margin-inline-start:auto}
+details.prog>summary svg{width:18px;height:18px;flex:none;transition:transform .2s}
+details.prog[open]>summary svg{transform:rotate(180deg)}
+details.prog .pin{display:grid;gap:14px;padding-bottom:16px}
+
+@media (max-width:430px){.brand span{display:none}}
+.count .btn{white-space:nowrap}
 </style>
 
 <div id="app" dir="rtl" lang="ar">
@@ -289,6 +306,7 @@ textarea.report{width:100%;min-height:180px;border:1px solid var(--rule-strong);
     <div class="brand"><div class="seal">EN2</div><div><b>رخصة الإنجليزي ٢</b><span>المتوسط والثانوي · ٤ مجالات · ١١ معياراً</span></div></div>
     <nav class="nav" id="nav"></nav>
     <div class="count" id="count"></div>
+    <button class="themebtn" id="themeBtn" data-act="theme" aria-label="الوضع الليلي"></button>
   </div></header>
   <main id="view"><div class="sheet" style="margin-top:20px"><p>يحمّل المنهج…</p></div></main>
 </div>
@@ -2486,6 +2504,13 @@ window.QB = (window.QB || []).concat([
 <script>
 (function(){
 "use strict";
+
+const THEME_KEY = "rakhsa-en2.theme";
+try{const t=localStorage.getItem(THEME_KEY); if(t==="dark"||t==="light") document.documentElement.dataset.theme=t;}catch(e){}
+function isDark(){const t=document.documentElement.dataset.theme; return t? t==="dark" : !!(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)}
+const SUN='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const MOON='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1111.2 3a7 7 0 009.8 9.8z"/></svg>';
+function renderTheme(){const b=document.getElementById("themeBtn"); if(!b) return; const d=isDark(); b.innerHTML=d?SUN:MOON; b.setAttribute("aria-label",d?"الوضع النهاري":"الوضع الليلي"); b.title=d?"الوضع النهاري":"الوضع الليلي"}
 document.documentElement.lang = "ar";
 
 /* ---------- constants ---------- */
@@ -2695,7 +2720,7 @@ function renderNav(){
   if(S.exam){const d=diffDays(todayStr(),S.exam); c.innerHTML=`<div class="n">${d>=0?AR(d):"—"}</div><div class="l">${d>0?"يوماً للاختبار":d===0?"اليوم الاختبار":"انتهى الموعد"}</div>`}
   else c.innerHTML=`<button class="btn sm ghost" data-go="settings">حدد الموعد</button>`;
 }
-function renderSync(){const el=document.getElementById("syncline"); if(el){el.className="sync"+(syncOn?" on":""); el.innerHTML=`<i></i>${syncOn?"تقدمك محفوظ على حسابك ويظهر في أي جهاز":"تقدمك محفوظ في هذا الجهاز"}`}}
+function renderSync(){renderTheme();const el=document.getElementById("syncline"); if(el){el.className="sync"+(syncOn?" on":""); el.innerHTML=`<i></i>${syncOn?"تقدمك محفوظ على حسابك ويظهر في أي جهاز":"تقدمك محفوظ في هذا الجهاز"}`}}
 
 /* ---------- views ---------- */
 function domBar(d){
@@ -2717,6 +2742,11 @@ function coverCard(){
     <div class="topics">${["تدريس المهارات الأربع والمفردات والقواعد","طرق التدريس","التقويم","الأهداف وتخطيط الدرس","نظريات التعلم واكتساب اللغة الثانية","الأصوات والصرف والنحو والدلالة"].map(t=>`<span>${t}</span>`).join("")}</div>
   </div>`;
 }
+function pathLine(doneL){
+  const mocks=["mock1","mock2","mock3"].every(k=>S.tests[k]);
+  const st=!S.tests.diag?1:(doneL<LESSONS.length&&!mocks?2:3);
+  return `<div class="path">${["الاختبار التشخيصي","الدروس والخطة اليومية","المحاكيات"].map((t,i)=>i+1===st?`<b>${AR(i+1)}. ${t}</b>`:`<span>${AR(i+1)}. ${t}</span>`).join('<span aria-hidden="true">←</span>')}</div>`;
+}
 function startSteps(){
   const doneL=LESSONS.filter(l=>S.lessons[l.id]&&S.lessons[l.id].done).length;
   const mk=["mock1","mock2","mock3"].filter(k=>S.tests[k]).length;
@@ -2731,7 +2761,8 @@ function examMap(){
   const keys=Object.keys(STDW); const max=Math.max(...keys.map(k=>STDW[k]));
   return `<div class="section-title"><h2>خريطة الاختبار</h2><span class="line"></span></div>
   <div class="sheet stack"><p class="small muted">كم سؤالاً يجيك تقريباً من كل معيار من أصل ٨٨، حسب أوزان دليل الهيئة. اضغط المعيار لتفتح درسه.</p>
-  <div class="map">${keys.map(k=>{const l=LESSONS.find(x=>x.std===k); if(!l) return ""; return `<button class="mrow" data-lesson="${l.id}"><span class="mn">${STD_AR[k]||k}<span class="code">${k}</span></span><span class="mq">≈ ${AR(STD_N[k])} سؤالاً</span><span class="mb"><i style="width:${Math.round(STDW[k]/max*100)}%;background:var(--d${l.d})"></i></span></button>`}).join("")}</div></div>`;
+  <div class="map">${keys.map(k=>{const l=LESSONS.find(x=>x.std===k); if(!l) return ""; return `<button class="mrow" data-lesson="${l.id}"><span class="mn">${STD_AR[k]||k}<span class="code">${k}</span></span><span class="mq">≈ ${AR(STD_N[k])} سؤالاً</span><span class="mb"><i style="width:${Math.round(STDW[k]/max*100)}%;background:var(--d${l.d})"></i></span></button>`}).join("")}</div>
+  <div><button class="btn ghost" data-go="lessons">انتقل إلى الدروس</button></div></div>`;
 }
 function viewHome(){
   const plan=buildPlan(), idx=Math.min(plan.length-1,Math.max(0,diffDays(S.start,todayStr()))), today=plan[idx];
@@ -2745,27 +2776,29 @@ function viewHome(){
   return `
   <section class="stack" style="padding-top:18px">
     ${coverCard()}
-    ${startSteps()}
     ${!S.exam?`<div class="sheet"><div class="stack"><h3>متى اختبارك؟</h3><p class="muted small">حدد التاريخ عشان أوزّع الدروس على الأيام المتبقية وأعطيك عدّاً تنازلياً.</p>
       <div class="set-date"><label for="examDate" class="small">تاريخ الاختبار</label><input type="date" id="examDate" dir="ltr" lang="en" min="${todayStr()}"><button class="btn sm" data-act="setExam">احفظ</button></div></div></div>`:""}
     <div class="sheet today">
       <div class="kicker">${nt?`اليوم ${AR(idx+1)} من ${AR(plan.length+1)} · ${fmtDate(todayStr())}`:"خلصت الخطة كاملة"}</div>
+      ${pathLine(doneL)}
       ${nt?`<h1>${esc(nt.t)}</h1><p class="muted">${esc(nt.s)}</p>`:`<h1>جاهز للاختبار</h1><p class="muted">راجع ورقة الليلة الأخيرة والأخطاء المتبقية.</p>`}
       ${lag>0?`<p class="small" style="color:var(--warn)">متأخر عن الخطة ${AR(lag)} ${lag===1?"يوم":"أيام"} — خذ درسين اليوم لو تقدر.</p>`:""}
       ${today&&today.tasks.length>1?`<p class="small muted">مهام اليوم حسب الخطة: ${today.tasks.map(t=>esc(t.t)).join(" + ")}</p>`:""}
-      <div class="row">${nt?`<button class="btn" data-open-task="${nt.id}">ابدأ</button>`:`<button class="btn" data-go="sheet">ورقة الليلة الأخيرة</button>`}
-        ${due?`<button class="btn quiet" data-act="review">مراجعة الأخطاء (${AR(due)})</button>`:""}</div>
+      <div class="row">${nt?`<button class="btn" data-open-task="${nt.id}">ابدأ</button>`:`<button class="btn" data-go="sheet">ورقة الليلة الأخيرة</button>`}<span class="or">أو انتقل إلى</span><button class="btn ghost" data-go="lessons">الدروس</button></div>
+      ${due?`<div class="row"><button class="btn sm quiet" data-act="review">مراجعة الأخطاء (${AR(due)})</button></div>`:""}
     </div>
+    ${examMap()}
+    <details class="prog"><summary>تقدمك<span class="hint">الدروس والدقة والمحاكيات</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></summary><div class="pin">
     <div class="stats">
       <div class="stat"><div class="v">${AR(doneL)}/${AR(LESSONS.length)}</div><div class="k">دروس منجزة</div></div>
       <div class="stat"><div class="v">${AR(att)}</div><div class="k">إجابة · دقة ${AR(pct(cor,att))}٪</div></div>
       <div class="stat"><div class="v">${AR(due)}</div><div class="k">أخطاء مستحقة للمراجعة</div></div>
       <div class="stat"><div class="v" style="font-size:1.05rem">${mk("mock1")} · ${mk("mock2")} · ${mk("mock3")}</div><div class="k">المحاكيات ١ · ٢ · ٣</div></div>
     </div>
-    ${examMap()}
-    <div class="section-title"><h2>إتقانك حسب المجال</h2><span class="line"></span></div>
+    <h3>إتقانك حسب المجال</h3>
     <div class="sheet domains">${DORDER.map(domBar).join("")}
       <p class="small muted">الإتقان: نسبة أسئلة المجال التي آخر إجابة لك عليها صحيحة. النسبة بجانب كل مجال هي وزنه في الاختبار.</p></div>
+    </div></details>
     <div class="row" style="justify-content:space-between"><div id="syncline" class="sync"></div><button class="btn sm quiet" data-go="settings">الإعدادات والتقرير</button></div>
     <div class="credit"><span class="cm" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4z"/></svg></span><div><div class="ck">إعداد وتصميم</div><div class="cn">الأستاذ يوسف الشمراني</div></div></div>
   </section>`;
@@ -3038,6 +3071,7 @@ document.addEventListener("click",e=>{
   const a=ds.act; if(!a) return;
   const s=session;
   switch(a){
+    case "theme":{const n=isDark()?"light":"dark"; document.documentElement.dataset.theme=n; try{localStorage.setItem(THEME_KEY,n)}catch(e){}; renderTheme(); break}
     case "setExam":{const v=document.getElementById("examDate").value; if(!v){toast("اختر التاريخ أولاً");return} S.exam=v; if(diffDays(S.start,v)<1) S.start=todayStr(); save(); toast("حُفظ الموعد"); render(); break}
     case "restartPlan": S.start=todayStr(); save(); toast("بدأت الخطة من اليوم"); render(); break;
     case "lessonQuiz":{const ids=shuffle(QS.filter(q=>q.l===ds.id&&!q.m).map(q=>q.id)); startSession({mode:"practice",kind:"lesson",ref:ds.id,title:LBY[ds.id].ar,ids}); break}
